@@ -60,7 +60,17 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        
+        qValue = 0
+
+        # for every possible outcome of the action
+        for nextState, probability in self.mdp.getTransitionStatesAndProbs(state, action):
+
+            # add reward & future reward (=V) * probability of the outcome
+            reward = self.mdp.getReward(state, action, nextState)
+            qValue += probability * (reward + self.discount * self.values[nextState])
+
+        return qValue
+
     def computeActionFromValues(self, state):
         """
           The policy is the best action in the given state
@@ -71,6 +81,15 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
+         # get the best possible action for the state
+        policies = util.Counter()
+        for action in self.mdp.getPossibleActions(state):
+
+            # how good is an action = q-value (which considers all possible outcomes)
+            policies[action] = self.getQValue(state, action)
+
+        # return the best action, e.g. 'north'
+        return policies.argMax()
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
