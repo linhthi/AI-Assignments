@@ -1,15 +1,11 @@
 # valueIterationAgents.py
 # -----------------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
-# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+# Nhom 1:
+# Ho va ten                 | MSSV       | Ngay sinh
+# Hoang Thi Linh            | 17020852   | 08/03/1999
+# Nguyen Thi Le             | 17020847   | 26/02/1999
+# Le Thi Thuy Linh          | 17020854   | 24/10/1998
+# Bui Thi Ngat              | 17020922   | 28/03/1999
 
 
 import mdp, util
@@ -45,6 +41,23 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
+        states = self.mdp.getStates()
+        for i in range(self.iterations):
+            tmp_values = util.Counter()
+            for state in states:
+                if self.mdp.isTerminal(state):
+                    continue
+                actions = self.mdp.getPossibleActions(state)
+                action_values_dict = util.Counter()
+                for action in actions:
+                    total_value = []
+                    nextState_prob_list = self.mdp.getTransitionStatesAndProbs(state, action)
+                    for (nextState, prob) in nextState_prob_list:
+                        reward = self.mdp.getReward(state, action, nextState)
+                        total_value.append(prob * (reward + self.discount * self.values[nextState]))
+                    action_values_dict[action] = sum(total_value)
+                tmp_values[state] = max(list(action_values_dict.values()))
+            self.values = tmp_values
 
 
     def getValue(self, state):
@@ -60,16 +73,13 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        qValue = 0
-
-        # for every possible outcome of the action
-        for nextState, probability in self.mdp.getTransitionStatesAndProbs(state, action):
-
-            # add reward & future reward (=V) * probability of the outcome
+        #util.raiseNotDefined()
+        total_value = []
+        nextState_prob_list = self.mdp.getTransitionStatesAndProbs(state, action)
+        for (nextState, prob) in nextState_prob_list:
             reward = self.mdp.getReward(state, action, nextState)
-            qValue += probability * (reward + self.discount * self.values[nextState])
-
-        return qValue
+            total_value.append(prob * (reward + self.discount * self.values[nextState]))
+        return sum(total_value)
 
     def computeActionFromValues(self, state):
         """
@@ -81,15 +91,18 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-         # get the best possible action for the state
-        policies = util.Counter()
-        for action in self.mdp.getPossibleActions(state):
-
-            # how good is an action = q-value (which considers all possible outcomes)
-            policies[action] = self.getQValue(state, action)
-
-        # return the best action, e.g. 'north'
-        return policies.argMax()
+        #util.raiseNotDefined()
+        actions = self.mdp.getPossibleActions(state)
+        action_values_dict = util.Counter()
+        for action in actions:
+            total_value = []
+            nextState_prob_list = self.mdp.getTransitionStatesAndProbs(state, action)
+            for (nextState, prob) in nextState_prob_list:
+                reward = self.mdp.getReward(state, action, nextState)
+                total_value.append(prob * (reward + self.discount * self.values[nextState]))
+            action_values_dict[action] = sum(total_value)
+        res = action_values_dict.argMax()
+        return res
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
